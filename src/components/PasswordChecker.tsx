@@ -2,28 +2,32 @@
 
 import { CheckIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
-
-import { Input } from "@/components/Input";
-import { cn } from "@/utils/cn";
-import { checkRules } from "@/utils/check-rules";
-import { useEnabledRules } from "@/hooks/useEnabledRules";
-import { buildRules } from "@/utils/build-rules";
-import { DEFAULT_PASSWORD_RULES } from "@/const/default-password-rules";
-import { Button } from "./Button";
 import { useRouter } from "next/navigation";
 
-export function PasswordChecker() {
+import { Input } from "@/components/Input";
+import { Button } from "@/components/Button";
+import { cn } from "@/utils/cn";
+import { checkRules } from "@/utils/check-rules";
+import { buildRules } from "@/utils/build-rules";
+import { SerializedRule } from "@/lib/db/models/rule";
+
+interface PasswordCheckerProps {
+  initialRules: SerializedRule[];
+}
+
+export function PasswordChecker({ initialRules }: PasswordCheckerProps) {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const { enabledIds, hydrated, minLength } = useEnabledRules();
+  const enabledRules = buildRules(
+    initialRules.map((r) => r.type),
+    initialRules.find((r) => r.type === "min-length")?.config?.minLength ?? 8,
+  );
 
-  const rules = hydrated
-    ? buildRules(enabledIds, minLength)
-    : DEFAULT_PASSWORD_RULES;
-  const results = checkRules(password, rules);
+  const results = checkRules(password, enabledRules);
   const passedCount = Object.values(results).filter(Boolean).length;
-  const allPassed = passedCount === rules.length;
+  const allPassed = passedCount === enabledRules.length;
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <Input
@@ -38,9 +42,8 @@ export function PasswordChecker() {
       />
 
       <ul className="flex flex-col gap-2">
-        {rules.map((rule) => {
+        {enabledRules.map((rule) => {
           const passed = results[rule.id];
-
           return (
             <li
               key={rule.id}
@@ -62,9 +65,10 @@ export function PasswordChecker() {
           );
         })}
       </ul>
+
       <Button
         onClick={() => router.push("/settings")}
-        variant={"outline"}
+        variant="outline"
         className="mt-2"
       >
         <SettingsIcon className="h-4 w-4" />

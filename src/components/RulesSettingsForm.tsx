@@ -1,93 +1,108 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Checkbox } from "@/components/Checkbox";
 import { Label } from "@/components/Label";
-import { useEnabledRules } from "@/hooks/useEnabledRules";
+import { Button } from "@/components/Button";
+import NumberInput from "@/components/NumberInput";
 import { MIN_LENGTH_BOUNDS } from "@/const/min-length-bounds";
 import { STATIC_PASSWORD_RULES } from "@/const/static-password-rules";
-import { cn } from "@/utils/cn";
-import NumberInput from "./NumberInput";
-import { Button } from "./Button";
+import { saveRulesAction } from "@/lib/actions/rules.actions";
+import { SerializedRule } from "@/lib/db/models/rule";
+import { RuleUpdate } from "@/type/rule-update";
 
-export function RulesSettingsForm() {
+interface RulesSettingsFormProps {
+  initialRules: SerializedRule[];
+}
+
+export function RulesSettingsForm({ initialRules }: RulesSettingsFormProps) {
   const router = useRouter();
-  const { enabledIds, minLength, toggle, setMinLength, hydrated } =
-    useEnabledRules();
+  const [isPending, startTransition] = useTransition();
+  const [rules, setRules] = useState(initialRules);
+
+  const minLengthRule = rules.find((r) => r.type === "min-length");
+  const hasEnabledRules = rules.some((r) => r.enabled);
+
+  const handleToggle = (id: string, enabled: boolean) => {
+    setRules((prev) => prev.map((r) => (r._id === id ? { ...r, enabled } : r)));
+  };
+
+  const handleMinLengthChange = (id: string, minLength: number) => {
+    setRules((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, config: { minLength } } : r)),
+    );
+  };
+
+  const handleSave = () => {
+    startTransition(async () => {
+      const updates: RuleUpdate[] = rules.map((r) => ({
+        id: r._id,
+        enabled: r.enabled,
+        config: r.config,
+      }));
+      await saveRulesAction(updates);
+      router.push("/");
+    });
+  };
 
   return (
-    <div className="flex flex-col gap-6">
-      <ul className={cn("flex flex-col gap-4", !hydrated && "opacity-0")}>
-        <li className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <Checkbox
-              id="min-length"
-              checked={enabledIds.includes("min-length")}
-              onCheckedChange={(checked) =>
-                toggle("min-length", checked === true)
-              }
-              disabled={!hydrated}
-            />
-            <Label
-              htmlFor="min-length"
-              className={cn(
-                "cursor-pointer transition-opacity",
-                !enabledIds.includes("min-length") && "opacity-50",
-              )}
-            >
-              Minimum length
-            </Label>
-          </div>
-
-          {enabledIds.includes("min-length") && (
-            <div className="pl-7">
-              <NumberInput
-                value={minLength}
-                min={MIN_LENGTH_BOUNDS.min}
-                max={MIN_LENGTH_BOUNDS.max}
-                onChange={setMinLength}
-                disabled={!hydrated}
-              />
-            </div>
-          )}
-        </li>
-
-        {STATIC_PASSWORD_RULES.map((rule) => {
-          const enabled = enabledIds.includes(rule.id);
-          return (
-            <li key={rule.id} className="flex items-center gap-3">
+    <div className="flex flex-col gap-6 w-full">
+      <ul className="flex flex-col gap-4">
+        {minLengthRule && (
+          <li className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
               <Checkbox
-                id={rule.id}
-                checked={enabled}
-                onCheckedChange={(checked) => toggle(rule.id, checked === true)}
-                disabled={!hydrated}
+                id="min-length"
+                checked={minLengthRule.enabled}
+                onCheckedChange={(checked) =>
+                  handleToggle(minLengthRule._id, checked === true)
+                }
               />
-              <Label
-                htmlFor={rule.id}
-                className={cn(
-                  "cursor-pointer transition-opacity",
-                  !enabled && "opacity-50",
-                )}
-              >
-                {rule.label}
-              </Label>
+              <Label htmlFor="min-length">Minimum length</Label>
+            </div>
+            {minLengthRule.enabled && (
+              <div className="pl-7">
+                <NumberInput
+                  value={minLengthRule.config?.minLength ?? 8}
+                  min={MIN_LENGTH_BOUNDS.min}
+                  max={MIN_LENGTH_BOUNDS.max}
+                  onChange={(value) =>
+                    handleMinLengthChange(minLengthRule._id, value)
+                  }
+                />
+              </div>
+            )}
+          </li>
+        )}
+
+        {STATIC_PASSWORD_RULES.map((staticRule) => {
+          const dbRule = rules.find((r) => r.type === staticRule.id);
+          if (!dbRule) return null;
+          return (
+            <li key={staticRule.id} className="flex items-center gap-3">
+              <Checkbox
+                id={staticRule.id}
+                checked={dbRule.enabled}
+                onCheckedChange={(checked) =>
+                  handleToggle(dbRule._id, checked === true)
+                }
+              />
+              <Label htmlFor={staticRule.id}>{staticRule.label}</Label>
             </li>
           );
         })}
       </ul>
 
-      {enabledIds.length === 0 && hydrated && (
+      {!hasEnabledRules && (
         <p className="text-error text-xs text-center">
           Select at least one rule.
         </p>
       )}
 
-      <Button
-        onClick={() => router.push("/")}
-        disabled={!hydrated || enabledIds.length === 0}
-      >
-        Save & go to checker
+      <Button disabled={isPending || !hasEnabledRules} onClick={handleSave}>
+        {isPending ? "Saving..." : "Save & go to checker"}
       </Button>
     </div>
   );
