@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailIcon } from "lucide-react";
+import Link from "next/link";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 
@@ -56,9 +57,16 @@ export function LoginForm() {
 
       <InputError error={errors.root?.message} className="justify-center" />
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Signing in..." : "Sign in"}
+      <Button type="submit" disabled={isPending} className="mt-2">
+        {isPending ? "Logging in..." : "Login"}
       </Button>
+
+      <p className="text-center">
+        <span>Don&apos;t have an account?</span>{" "}
+        <Button variant="link" asChild className="p-0">
+          <Link href="/register">Register</Link>
+        </Button>
+      </p>
     </form>
   );
 }
