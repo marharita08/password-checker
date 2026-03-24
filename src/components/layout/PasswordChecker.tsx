@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button, Input } from "@/components/ui";
+import { RuleType } from "@/const";
 import { SerializedRule } from "@/lib/db/models/rule";
 import { buildRules, checkRules, cn } from "@/utils";
 
@@ -17,8 +18,9 @@ export function PasswordChecker({ initialRules }: PasswordCheckerProps) {
   const router = useRouter();
 
   const enabledRules = buildRules(
-    initialRules.map((r) => r.type),
-    initialRules.find((r) => r.type === "min-length")?.config?.minLength ?? 8,
+    initialRules,
+    initialRules.find((r) => r.type === RuleType.MIN_LENGTH)?.config
+      ?.minLength ?? 8,
   );
 
   const results = checkRules(password, enabledRules);

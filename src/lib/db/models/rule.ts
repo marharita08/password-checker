@@ -1,10 +1,12 @@
 import mongoose, { InferSchemaType } from "mongoose";
 
+import { RuleType } from "@/const";
+
 const RuleSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["min-length", "uppercase", "lowercase", "digit"],
+      enum: Object.values(RuleType),
       required: true,
     },
     label: { type: String, required: true },
@@ -23,7 +25,7 @@ export const Rule = mongoose.models.Rule ?? mongoose.model("Rule", RuleSchema);
 
 export type SerializedRule = {
   _id: string;
-  type: string;
+  type: RuleType;
   label: string;
   config?: { minLength?: number };
 };

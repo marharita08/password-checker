@@ -1,5 +1,7 @@
 import mongoose, { InferSchemaType } from "mongoose";
 
+import { RuleType } from "@/const";
+
 const UserRuleSchema = new mongoose.Schema(
   {
     userId: {
@@ -28,7 +30,7 @@ export type UserRuleDocument = InferSchemaType<typeof UserRuleSchema> & {
 
 export type SerializedUserRule = {
   _id: string;
-  type: string;
+  type: RuleType;
   label: string;
   enabled: boolean;
   config?: { minLength?: number };

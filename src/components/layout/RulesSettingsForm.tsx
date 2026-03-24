@@ -1,13 +1,21 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
-import { Button, Checkbox, Label, NumberInput } from "@/components/ui";
-import { MIN_LENGTH_BOUNDS, STATIC_PASSWORD_RULES } from "@/const";
+import {
+  Button,
+  Checkbox,
+  InputError,
+  Label,
+  NumberInput,
+} from "@/components/ui";
+import { MIN_LENGTH_BOUNDS, RuleType } from "@/const";
 import { saveRulesAction } from "@/lib/actions";
 import { SerializedUserRule } from "@/lib/db/models/user-rule";
-import { RuleUpdate } from "@/types";
+import { RulesFormValues, rulesSchema } from "@/lib/schemas/rules.schema";
 import { cn } from "@/utils";
 
 interface RulesSettingsFormProps {
@@ -21,64 +29,97 @@ export function RulesSettingsForm({
 }: RulesSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [rules, setRules] = useState(initialRules);
 
-  const minLengthRule = rules.find((r) => r.type === "min-length");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RulesFormValues>({
+    resolver: zodResolver(rulesSchema),
+    defaultValues: {
+      rules: initialRules.map((r) => ({
+        id: r._id,
+        type: r.type,
+        label: r.label,
+        enabled: r.enabled,
+        config: r.config,
+      })),
+    },
+  });
+
+  const rules = useWatch({
+    control,
+    name: "rules",
+  });
+
+  const minLengthIndex = rules.findIndex((r) => r.type === RuleType.MIN_LENGTH);
+
   const hasEnabledRules = rules.some((r) => r.enabled);
 
-  const handleToggle = (id: string, enabled: boolean) => {
-    setRules((prev) => prev.map((r) => (r._id === id ? { ...r, enabled } : r)));
-  };
-
-  const handleMinLengthChange = (id: string, minLength: number) => {
-    setRules((prev) =>
-      prev.map((r) => (r._id === id ? { ...r, config: { minLength } } : r)),
-    );
-  };
-
-  const handleSave = () => {
+  const onSubmit = (data: RulesFormValues) => {
     startTransition(async () => {
-      const updates: RuleUpdate[] = rules.map((r) => ({
-        id: r._id,
+      const updates = data.rules.map((r) => ({
+        id: r.id,
         enabled: r.enabled,
         config: r.config,
       }));
+
       await saveRulesAction(userId, updates);
       router.push("/");
     });
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-6 w-full"
+    >
       <ul className="flex flex-col gap-4">
-        {minLengthRule && (
+        {minLengthIndex !== -1 && (
           <li className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <Checkbox
-                id="min-length"
-                checked={minLengthRule.enabled}
-                onCheckedChange={(checked) =>
-                  handleToggle(minLengthRule._id, checked === true)
-                }
-              />
-              <Label
-                htmlFor="min-length"
-                className={cn(
-                  "cursor-pointer transition-opacity",
-                  !minLengthRule.enabled && "opacity-50",
-                )}
-              >
-                Minimum length
-              </Label>
-            </div>
-            {minLengthRule.enabled && (
-              <div className="pl-7">
-                <NumberInput
-                  value={minLengthRule.config?.minLength ?? 8}
-                  min={MIN_LENGTH_BOUNDS.min}
-                  max={MIN_LENGTH_BOUNDS.max}
-                  onChange={(value) =>
-                    handleMinLengthChange(minLengthRule._id, value)
+            <Controller
+              control={control}
+              name={`rules.${minLengthIndex}.enabled`}
+              render={({ field }) => (
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id={RuleType.MIN_LENGTH}
+                    checked={field.value}
+                    onCheckedChange={(checked) =>
+                      field.onChange(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor={RuleType.MIN_LENGTH}
+                    className={cn(
+                      "cursor-pointer transition-opacity",
+                      !field.value && "opacity-50",
+                    )}
+                  >
+                    Minimum length
+                  </Label>
+                </div>
+              )}
+            />
+
+            {rules[minLengthIndex]?.enabled && (
+              <div className="pl-7 flex flex-col gap-1">
+                <Controller
+                  control={control}
+                  name={`rules.${minLengthIndex}.config.minLength`}
+                  render={({ field }) => (
+                    <NumberInput
+                      value={field.value ?? MIN_LENGTH_BOUNDS.min}
+                      min={MIN_LENGTH_BOUNDS.min}
+                      max={MIN_LENGTH_BOUNDS.max}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+
+                <InputError
+                  error={
+                    errors.rules?.[minLengthIndex]?.config?.minLength?.message
                   }
                 />
               </div>
@@ -86,41 +127,46 @@ export function RulesSettingsForm({
           </li>
         )}
 
-        {STATIC_PASSWORD_RULES.map((staticRule) => {
-          const dbRule = rules.find((r) => r.type === staticRule.id);
-          if (!dbRule) return null;
+        {rules.map((rule, index) => {
+          if (rule.type === RuleType.MIN_LENGTH) return null;
+
           return (
-            <li key={staticRule.id} className="flex items-center gap-3">
-              <Checkbox
-                id={staticRule.id}
-                checked={dbRule.enabled}
-                onCheckedChange={(checked) =>
-                  handleToggle(dbRule._id, checked === true)
-                }
-              />
-              <Label
-                htmlFor={staticRule.id}
-                className={cn(
-                  "cursor-pointer transition-opacity",
-                  !dbRule.enabled && "opacity-50",
-                )}
-              >
-                {staticRule.label}
-              </Label>
+            <li key={rule.id} className="flex flex-col gap-1">
+              <div className="flex items-center gap-3">
+                <Controller
+                  control={control}
+                  name={`rules.${index}.enabled`}
+                  render={({ field }) => (
+                    <Checkbox
+                      id={rule.type}
+                      checked={field.value}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked === true)
+                      }
+                    />
+                  )}
+                />
+
+                <Label
+                  htmlFor={rule.type}
+                  className={cn(
+                    "cursor-pointer transition-opacity",
+                    !rule.enabled && "opacity-50",
+                  )}
+                >
+                  {rule.label}
+                </Label>
+              </div>
             </li>
           );
         })}
       </ul>
 
-      {!hasEnabledRules && (
-        <p className="text-error text-xs text-center">
-          Select at least one rule.
-        </p>
-      )}
+      <InputError error={errors.rules?.message} className="justify-center" />
 
-      <Button disabled={isPending || !hasEnabledRules} onClick={handleSave}>
+      <Button type="submit" disabled={isPending || !hasEnabledRules}>
         {isPending ? "Saving..." : "Save & go to checker"}
       </Button>
-    </div>
+    </form>
   );
 }

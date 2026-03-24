@@ -1,17 +1,22 @@
 import mongoose from "mongoose";
 
+import { DEFAULT_MIN_LENGTH, RuleType } from "@/const";
 import { Rule } from "@/lib/db/models/rule";
 import { UserRule } from "@/lib/db/models/user-rule";
 
 const defaults = [
   {
-    type: "min-length",
-    label: "At least 8 characters",
-    config: { minLength: 8 },
+    type: RuleType.MIN_LENGTH,
+    label: `At least ${DEFAULT_MIN_LENGTH} characters`,
+    config: { minLength: DEFAULT_MIN_LENGTH },
   },
-  { type: "uppercase", label: "At least one uppercase letter" },
-  { type: "lowercase", label: "At least one lowercase letter" },
-  { type: "digit", label: "At least one digit" },
+  { type: RuleType.UPPERCASE, label: "At least one uppercase letter (A–Z)" },
+  { type: RuleType.LOWERCASE, label: "At least one lowercase letter (a–z)" },
+  { type: RuleType.DIGIT, label: "At least one digit (0–9)" },
+  {
+    type: RuleType.SPECIAL_CHARACTER,
+    label: "At least one special character (!@#$%^&*)",
+  },
 ];
 
 async function seed() {
