@@ -1,7 +1,15 @@
-import { Header } from "@/components/Header";
-import { RegisterForm } from "@/components/RegisterForm";
+import { redirect } from "next/navigation";
 
-export default function RegisterPage() {
+import { Header, RegisterForm } from "@/components/layout";
+import { auth } from "@/lib/auth";
+
+export default async function RegisterPage() {
+  const session = await auth();
+
+  if (session) {
+    redirect("/");
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

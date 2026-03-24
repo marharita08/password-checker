@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "db": "docker compose up -d",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "seed": "tsx --env-file=.env src/scripts/seed.ts"
@@ -39,6 +40,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.7",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

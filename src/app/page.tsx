@@ -1,8 +1,6 @@
+import { Header, PasswordChecker } from "@/components/layout";
 import { auth } from "@/lib/auth";
-import { Header } from "@/components/Header";
-import { PasswordChecker } from "@/components/PasswordChecker";
-import { rulesService } from "@/lib/services/rules.service";
-import { userRulesService } from "@/lib/services/user-rules.service";
+import { rulesService, userRulesService } from "@/lib/services";
 
 export default async function Home() {
   const session = await auth();

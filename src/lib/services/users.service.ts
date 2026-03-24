@@ -1,5 +1,5 @@
+import { SerializedUser, User, UserDocument } from "@/lib/db/models/user";
 import { connectDB } from "@/lib/db/mongoose";
-import { User, UserDocument, SerializedUser } from "@/lib/db/models/user";
 
 function serialize(user: UserDocument): SerializedUser {
   return {

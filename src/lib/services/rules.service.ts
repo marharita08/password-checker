@@ -1,5 +1,5 @@
-import { connectDB } from "@/lib/db/mongoose";
 import { Rule, RuleDocument, SerializedRule } from "@/lib/db/models/rule";
+import { connectDB } from "@/lib/db/mongoose";
 
 function serialize(rule: RuleDocument): SerializedRule {
   return {

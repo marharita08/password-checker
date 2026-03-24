@@ -1,7 +1,9 @@
+"use client";
+
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils";
 
 import { Button } from "./Button";
 import { Input } from "./Input";
@@ -19,7 +21,7 @@ export interface NumberInputProps {
   hideButtons?: boolean;
 }
 
-const NumberInput: React.FC<NumberInputProps> = ({
+export const NumberInput: React.FC<NumberInputProps> = ({
   min = -Infinity,
   max = Infinity,
   value,
@@ -123,5 +125,3 @@ const NumberInput: React.FC<NumberInputProps> = ({
     </div>
   );
 };
-
-export default NumberInput;

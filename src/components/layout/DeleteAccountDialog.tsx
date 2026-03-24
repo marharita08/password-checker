@@ -2,16 +2,17 @@
 
 import { useTransition } from "react";
 
-import { deleteAccountAction } from "@/lib/actions/auth.actions";
-import { Button } from "./Button";
+import { deleteAccountAction } from "@/lib/actions";
+
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./Dialog";
+} from "../ui";
 
 interface DeleteAccountDialogProps {
   open: boolean;

@@ -2,8 +2,8 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 
-import { DEFAULT_PASSWORD_RULES } from "@/const/default-password-rules";
 import { DEFAULT_MIN_LENGTH } from "@/const/default-min-length";
+import { DEFAULT_PASSWORD_RULES } from "@/const/default-password-rules";
 import { MIN_LENGTH_BOUNDS } from "@/const/min-length-bounds";
 
 const STORAGE_KEY = "password-checker:enabled-rules";

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { HeaderMenu } from "./HeaderMenu";
+
 import { auth } from "@/lib/auth";
+
+import { HeaderMenu } from "./";
 
 export const Header = async () => {
   const session = await auth();

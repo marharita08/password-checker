@@ -1,18 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
-import { Checkbox } from "@/components/Checkbox";
-import { Label } from "@/components/Label";
-import { Button } from "@/components/Button";
-import NumberInput from "@/components/NumberInput";
-import { MIN_LENGTH_BOUNDS } from "@/const/min-length-bounds";
-import { STATIC_PASSWORD_RULES } from "@/const/static-password-rules";
-import { saveRulesAction } from "@/lib/actions/user-rules.actions";
+import { Button, Checkbox, Label, NumberInput } from "@/components/ui";
+import { MIN_LENGTH_BOUNDS, STATIC_PASSWORD_RULES } from "@/const";
+import { saveRulesAction } from "@/lib/actions";
 import { SerializedUserRule } from "@/lib/db/models/user-rule";
-import { RuleUpdate } from "@/types/rule-update";
-import { cn } from "@/utils/cn";
+import { RuleUpdate } from "@/types";
+import { cn } from "@/utils";
 
 interface RulesSettingsFormProps {
   initialRules: SerializedUserRule[];

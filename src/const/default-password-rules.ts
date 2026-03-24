@@ -1,5 +1,6 @@
 import { PasswordRule } from "@/types/password-rule";
 import { createMinLengthRule } from "@/utils/create-min-length-rule";
+
 import { DEFAULT_MIN_LENGTH } from "./default-min-length";
 import { STATIC_PASSWORD_RULES } from "./static-password-rules";
 

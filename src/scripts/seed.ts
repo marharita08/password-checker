@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 import { Rule } from "@/lib/db/models/rule";
 import { UserRule } from "@/lib/db/models/user-rule";
 

@@ -1,7 +1,15 @@
-import { Header } from "@/components/Header";
-import { LoginForm } from "@/components/LoginForm";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
+import { Header, LoginForm } from "@/components/layout";
+import { auth } from "@/lib/auth";
+
+export default async function LoginPage() {
+  const session = await auth();
+
+  if (session) {
+    redirect("/");
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />

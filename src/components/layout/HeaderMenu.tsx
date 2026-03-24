@@ -2,17 +2,18 @@
 
 import { LogOutIcon, Trash2Icon, UserIcon } from "lucide-react";
 import Link from "next/link";
+import { Session } from "next-auth";
+import { useState } from "react";
 
-import { logoutAction } from "@/lib/actions/auth.actions";
-import { Button } from "./Button";
+import { logoutAction } from "@/lib/actions";
+
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./DropdownMenu";
-import { Session } from "next-auth";
-import { useState } from "react";
+} from "../ui";
 import { DeleteAccountDialog } from "./DeleteAccountDialog";
 
 interface HeaderMenuProps {

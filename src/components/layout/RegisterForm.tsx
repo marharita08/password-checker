@@ -1,18 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MailIcon } from "lucide-react";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
-import { InputError } from "@/components/InputError";
-import { PasswordInput } from "@/components/PasswordInput";
-import { loginAction } from "@/lib/actions/auth.actions";
-import { loginSchema, type LoginSchema } from "@/lib/schemas/auth.schemas";
-import { MailIcon } from "lucide-react";
+import { Button, Input, InputError, PasswordInput } from "@/components/ui";
+import { registerAction } from "@/lib/actions/auth.actions";
+import {
+  type RegisterSchema,
+  registerSchema,
+} from "@/lib/schemas/auth.schemas";
 
-export function LoginForm() {
+export function RegisterForm() {
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -20,13 +20,13 @@ export function LoginForm() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterSchema>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: LoginSchema) => {
+  const onSubmit = (data: RegisterSchema) => {
     startTransition(async () => {
-      const result = await loginAction(data.email, data.password);
+      const result = await registerAction(data.email, data.password);
       if (result?.error) {
         setError("root", { message: result.error });
       }
@@ -39,9 +39,9 @@ export function LoginForm() {
         <Input
           label="Email"
           type="email"
+          startIcon={<MailIcon className="h-4 w-4" />}
           placeholder="Enter your email"
           error={!!errors.email}
-          startIcon={<MailIcon className="h-4 w-4" />}
           {...register("email")}
         />
         <InputError error={errors.email?.message} />
@@ -50,17 +50,27 @@ export function LoginForm() {
       <div className="flex flex-col gap-1">
         <PasswordInput
           label="Password"
-          placeholder="Enter your password"
+          placeholder="Create a password"
           error={!!errors.password}
           {...register("password")}
         />
         <InputError error={errors.password?.message} />
       </div>
 
+      <div className="flex flex-col gap-1">
+        <PasswordInput
+          label="Confirm password"
+          placeholder="Repeat your password"
+          error={!!errors.confirmPassword}
+          {...register("confirmPassword")}
+        />
+        <InputError error={errors.confirmPassword?.message} />
+      </div>
+
       <InputError error={errors.root?.message} className="justify-center" />
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Signing in..." : "Sign in"}
+        {isPending ? "Creating account..." : "Create account"}
       </Button>
     </form>
   );

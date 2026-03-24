@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+
 import { usersService } from "@/lib/services/users.service";
 
 class AuthService {

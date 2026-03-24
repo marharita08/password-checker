@@ -1,15 +1,12 @@
 "use client";
 
 import { CheckIcon, SettingsIcon } from "lucide-react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { Input } from "@/components/Input";
-import { Button } from "@/components/Button";
-import { cn } from "@/utils/cn";
-import { checkRules } from "@/utils/check-rules";
-import { buildRules } from "@/utils/build-rules";
+import { Button, Input } from "@/components/ui";
 import { SerializedRule } from "@/lib/db/models/rule";
+import { buildRules, checkRules, cn } from "@/utils";
 
 interface PasswordCheckerProps {
   initialRules: SerializedRule[];

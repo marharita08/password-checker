@@ -1,10 +1,10 @@
-import { connectDB } from "@/lib/db/mongoose";
 import { Rule, RuleDocument } from "@/lib/db/models/rule";
 import {
+  SerializedUserRule,
   UserRule,
   UserRuleDocument,
-  SerializedUserRule,
 } from "@/lib/db/models/user-rule";
+import { connectDB } from "@/lib/db/mongoose";
 import { RuleUpdate } from "@/types/rule-update";
 
 function serialize(ur: UserRulePopulated): SerializedUserRule {

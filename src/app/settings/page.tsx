@@ -1,8 +1,8 @@
-import { Header } from "@/components/Header";
-import { RulesSettingsForm } from "@/components/RulesSettingsForm";
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { userRulesService } from "@/lib/services/user-rules.service";
+
+import { Header, RulesSettingsForm } from "@/components/layout";
+import { auth } from "@/lib/auth";
+import { userRulesService } from "@/lib/services";
 
 export default async function SettingsPage() {
   const session = await auth();

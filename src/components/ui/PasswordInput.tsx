@@ -1,7 +1,8 @@
+"use client";
 import { Eye, EyeOff, LockIcon } from "lucide-react";
 import { forwardRef, useCallback, useState } from "react";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils";
 
 import { Input, type InputProps } from "./Input";
 import { Label } from "./Label";

@@ -1,11 +1,13 @@
 "use server";
 
-import { auth, signIn, signOut } from "@/lib/auth";
-import { authService } from "@/lib/services/auth.service";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
+
+import { auth, signIn, signOut } from "@/lib/auth";
+import { authService } from "@/lib/services/auth.service";
+
 import { usersService } from "../services/users.service";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export async function loginAction(email: string, password: string) {
   try {
