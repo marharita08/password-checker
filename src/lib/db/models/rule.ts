@@ -8,8 +8,6 @@ const RuleSchema = new mongoose.Schema(
       required: true,
     },
     label: { type: String, required: true },
-    enabled: { type: Boolean, default: true },
-    isDefault: { type: Boolean, default: false },
     config: {
       minLength: { type: Number },
     },
@@ -27,7 +25,5 @@ export type SerializedRule = {
   _id: string;
   type: string;
   label: string;
-  enabled: boolean;
-  isDefault: boolean;
   config?: { minLength?: number };
 };

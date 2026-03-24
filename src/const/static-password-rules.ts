@@ -1,4 +1,4 @@
-import { PasswordRule } from "@/type/password-rule";
+import { PasswordRule } from "@/types/password-rule";
 
 export const STATIC_PASSWORD_RULES: PasswordRule[] = [
   {

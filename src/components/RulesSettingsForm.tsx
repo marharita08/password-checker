@@ -9,15 +9,20 @@ import { Button } from "@/components/Button";
 import NumberInput from "@/components/NumberInput";
 import { MIN_LENGTH_BOUNDS } from "@/const/min-length-bounds";
 import { STATIC_PASSWORD_RULES } from "@/const/static-password-rules";
-import { saveRulesAction } from "@/lib/actions/rules.actions";
-import { SerializedRule } from "@/lib/db/models/rule";
-import { RuleUpdate } from "@/type/rule-update";
+import { saveRulesAction } from "@/lib/actions/user-rules.actions";
+import { SerializedUserRule } from "@/lib/db/models/user-rule";
+import { RuleUpdate } from "@/types/rule-update";
+import { cn } from "@/utils/cn";
 
 interface RulesSettingsFormProps {
-  initialRules: SerializedRule[];
+  initialRules: SerializedUserRule[];
+  userId: string;
 }
 
-export function RulesSettingsForm({ initialRules }: RulesSettingsFormProps) {
+export function RulesSettingsForm({
+  initialRules,
+  userId,
+}: RulesSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [rules, setRules] = useState(initialRules);
@@ -42,7 +47,7 @@ export function RulesSettingsForm({ initialRules }: RulesSettingsFormProps) {
         enabled: r.enabled,
         config: r.config,
       }));
-      await saveRulesAction(updates);
+      await saveRulesAction(userId, updates);
       router.push("/");
     });
   };
@@ -60,7 +65,15 @@ export function RulesSettingsForm({ initialRules }: RulesSettingsFormProps) {
                   handleToggle(minLengthRule._id, checked === true)
                 }
               />
-              <Label htmlFor="min-length">Minimum length</Label>
+              <Label
+                htmlFor="min-length"
+                className={cn(
+                  "cursor-pointer transition-opacity",
+                  !minLengthRule.enabled && "opacity-50",
+                )}
+              >
+                Minimum length
+              </Label>
             </div>
             {minLengthRule.enabled && (
               <div className="pl-7">
@@ -89,7 +102,15 @@ export function RulesSettingsForm({ initialRules }: RulesSettingsFormProps) {
                   handleToggle(dbRule._id, checked === true)
                 }
               />
-              <Label htmlFor={staticRule.id}>{staticRule.label}</Label>
+              <Label
+                htmlFor={staticRule.id}
+                className={cn(
+                  "cursor-pointer transition-opacity",
+                  !dbRule.enabled && "opacity-50",
+                )}
+              >
+                {staticRule.label}
+              </Label>
             </li>
           );
         })}

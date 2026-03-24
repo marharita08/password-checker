@@ -1,4 +1,4 @@
-import { PasswordRule } from "@/type/password-rule";
+import { PasswordRule } from "@/types/password-rule";
 
 export function createMinLengthRule(minLength: number): PasswordRule {
   return {

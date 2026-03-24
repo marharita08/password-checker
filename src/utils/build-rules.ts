@@ -1,4 +1,4 @@
-import { PasswordRule } from "@/type/password-rule";
+import { PasswordRule } from "@/types/password-rule";
 import { createMinLengthRule } from "./create-min-length-rule";
 import { STATIC_PASSWORD_RULES } from "@/const/static-password-rules";
 

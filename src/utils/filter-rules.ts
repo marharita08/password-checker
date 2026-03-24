@@ -1,5 +1,5 @@
 import { DEFAULT_PASSWORD_RULES } from "@/const/default-password-rules";
-import { PasswordRule } from "@/type/password-rule";
+import { PasswordRule } from "@/types/password-rule";
 
 export function filterRules(enabledIds: string[] | undefined): PasswordRule[] {
   if (!enabledIds || enabledIds.length === 0) {

@@ -1,9 +1,14 @@
 import { Header } from "@/components/Header";
 import { RulesSettingsForm } from "@/components/RulesSettingsForm";
-import { rulesService } from "@/lib/services/rules.service";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { userRulesService } from "@/lib/services/user-rules.service";
 
 export default async function SettingsPage() {
-  const rules = await rulesService.getAll();
+  const session = await auth();
+  if (!session) redirect("/login");
+
+  const rules = await userRulesService.getForUser(session.user.id);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -16,7 +21,7 @@ export default async function SettingsPage() {
               Choose which rules to apply when checking your password.
             </p>
           </div>
-          <RulesSettingsForm initialRules={rules} />
+          <RulesSettingsForm initialRules={rules} userId={session.user.id} />
         </div>
       </main>
     </div>
