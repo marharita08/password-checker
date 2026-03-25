@@ -11,12 +11,19 @@ function serialize(ur: UserRulePopulated): SerializedUserRule {
   return {
     _id: ur._id.toString(),
     type: ur.ruleId.type,
-    label: ur.ruleId.label,
     enabled: ur.enabled,
     config: ur.config
-      ? { minLength: ur.config.minLength ?? undefined }
+      ? {
+          minLength: ur.config.minLength ?? undefined,
+          forbidden: ur.config.forbidden ?? undefined,
+          repeatLimit: ur.config.repeatLimit ?? undefined,
+        }
       : ur.ruleId.config
-        ? { minLength: ur.ruleId.config.minLength ?? undefined }
+        ? {
+            minLength: ur.ruleId.config.minLength ?? undefined,
+            forbidden: ur.ruleId.config.forbidden ?? undefined,
+            repeatLimit: ur.ruleId.config.repeatLimit ?? undefined,
+          }
         : undefined,
   };
 }
@@ -39,7 +46,7 @@ class UserRulesService {
       defaultRules.map((rule) => ({
         userId,
         ruleId: rule._id,
-        enabled: true,
+        enabled: rule.isDefault,
         config: rule.config,
       })),
     );

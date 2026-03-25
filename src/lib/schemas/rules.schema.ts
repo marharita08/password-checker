@@ -19,6 +19,9 @@ export const rulesSchema = z
               .min(MIN_LENGTH_BOUNDS.min)
               .max(MIN_LENGTH_BOUNDS.max)
               .optional(),
+            forbidden: z.array(z.string()).optional(),
+            forbiddenString: z.string().optional(),
+            repeatLimit: z.number().min(1).max(10).optional(),
           })
           .optional(),
       }),

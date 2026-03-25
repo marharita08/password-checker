@@ -5,6 +5,6 @@ export function checkRules(
   rules: PasswordRule[],
 ): Record<string, boolean> {
   return Object.fromEntries(
-    rules.map((rule) => [rule.id, rule.validate(password)]),
+    rules.map((rule) => [rule.type, rule.validate(password)]),
   );
 }

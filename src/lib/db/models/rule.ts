@@ -9,9 +9,11 @@ const RuleSchema = new mongoose.Schema(
       enum: Object.values(RuleType),
       required: true,
     },
-    label: { type: String, required: true },
+    isDefault: { type: Boolean, default: false },
     config: {
       minLength: { type: Number },
+      forbidden: [{ type: String }],
+      repeatLimit: { type: Number },
     },
   },
   { timestamps: true },
@@ -26,6 +28,5 @@ export const Rule = mongoose.models.Rule ?? mongoose.model("Rule", RuleSchema);
 export type SerializedRule = {
   _id: string;
   type: RuleType;
-  label: string;
-  config?: { minLength?: number };
+  config?: { minLength?: number; forbidden?: string[]; repeatLimit?: number };
 };

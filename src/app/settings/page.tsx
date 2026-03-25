@@ -13,8 +13,8 @@ export default async function SettingsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex items-center justify-center flex-1">
-        <div className="flex bg-card rounded-md shadow-md p-6 flex-col gap-6 border border-muted w-full max-w-md">
+      <main className="flex items-center justify-center flex-1 py-6">
+        <div className="flex bg-card rounded-md shadow-md p-6 flex-col gap-6 border border-muted w-full max-w-md max-h-[75vh] overflow-y-auto">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-bold text-center">Password Rules</h2>
             <p className="text-sm text-muted-foreground">

@@ -7,7 +7,7 @@ export default async function Home() {
 
   const rules = session?.user?.id
     ? await userRulesService.getForUser(session.user.id, true)
-    : await rulesService.getAll();
+    : await rulesService.getDefaultRules();
 
   return (
     <div className="min-h-screen flex flex-col">

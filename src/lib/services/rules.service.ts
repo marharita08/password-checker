@@ -5,7 +5,6 @@ function serialize(rule: RuleDocument): SerializedRule {
   return {
     _id: rule._id.toString(),
     type: rule.type,
-    label: rule.label,
     config: rule.config
       ? { minLength: rule.config.minLength ?? undefined }
       : undefined,
@@ -20,6 +19,12 @@ class RulesService {
   async getAll(): Promise<SerializedRule[]> {
     await this.connect();
     const rules = await Rule.find().lean();
+    return rules.map(serialize);
+  }
+
+  async getDefaultRules(): Promise<SerializedRule[]> {
+    await this.connect();
+    const rules = await Rule.find({ isDefault: true }).lean();
     return rules.map(serialize);
   }
 

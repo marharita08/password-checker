@@ -1,5 +1,7 @@
+import { RuleType } from "@/const";
+
 export interface PasswordRule {
-  id: string;
+  type: RuleType;
   label: string;
   validate: (password: string) => boolean;
 }

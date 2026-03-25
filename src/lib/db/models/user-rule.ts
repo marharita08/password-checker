@@ -17,6 +17,8 @@ const UserRuleSchema = new mongoose.Schema(
     enabled: { type: Boolean, default: true },
     config: {
       minLength: { type: Number },
+      forbidden: [{ type: String }],
+      repeatLimit: { type: Number },
     },
   },
   { timestamps: true },
@@ -31,9 +33,8 @@ export type UserRuleDocument = InferSchemaType<typeof UserRuleSchema> & {
 export type SerializedUserRule = {
   _id: string;
   type: RuleType;
-  label: string;
   enabled: boolean;
-  config?: { minLength?: number };
+  config?: { minLength?: number; forbidden?: string[]; repeatLimit?: number };
 };
 
 export const UserRule =

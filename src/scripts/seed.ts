@@ -7,15 +7,38 @@ import { UserRule } from "@/lib/db/models/user-rule";
 const defaults = [
   {
     type: RuleType.MIN_LENGTH,
-    label: `At least ${DEFAULT_MIN_LENGTH} characters`,
     config: { minLength: DEFAULT_MIN_LENGTH },
+    isDefault: true,
   },
-  { type: RuleType.UPPERCASE, label: "At least one uppercase letter (A–Z)" },
-  { type: RuleType.LOWERCASE, label: "At least one lowercase letter (a–z)" },
-  { type: RuleType.DIGIT, label: "At least one digit (0–9)" },
+  {
+    type: RuleType.UPPERCASE,
+    isDefault: true,
+  },
+  {
+    type: RuleType.LOWERCASE,
+    isDefault: true,
+  },
+  {
+    type: RuleType.DIGIT,
+    isDefault: true,
+  },
   {
     type: RuleType.SPECIAL_CHARACTER,
-    label: "At least one special character (!@#$%^&*)",
+    isDefault: true,
+  },
+  {
+    type: RuleType.NO_SPACES,
+    isDefault: false,
+  },
+  {
+    type: RuleType.FORBIDDEN,
+    config: { forbidden: [] },
+    isDefault: false,
+  },
+  {
+    type: RuleType.REPEAT_LIMIT,
+    config: { repeatLimit: 2 },
+    isDefault: false,
   },
 ];
 

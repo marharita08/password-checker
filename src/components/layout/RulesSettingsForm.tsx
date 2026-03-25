@@ -8,11 +8,12 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import {
   Button,
   Checkbox,
+  Input,
   InputError,
   Label,
   NumberInput,
 } from "@/components/ui";
-import { MIN_LENGTH_BOUNDS, RuleType } from "@/const";
+import { MIN_LENGTH_BOUNDS, RULE_LABELS_SETTINGS, RuleType } from "@/const";
 import { saveRulesAction } from "@/lib/actions";
 import { SerializedUserRule } from "@/lib/db/models/user-rule";
 import { RulesFormValues, rulesSchema } from "@/lib/schemas/rules.schema";
@@ -40,9 +41,13 @@ export function RulesSettingsForm({
       rules: initialRules.map((r) => ({
         id: r._id,
         type: r.type,
-        label: r.label,
+        label: RULE_LABELS_SETTINGS[r.type],
         enabled: r.enabled,
-        config: r.config,
+        config: {
+          minLength: r.config?.minLength,
+          forbiddenString: r.config?.forbidden?.join(", "),
+          repeatLimit: r.config?.repeatLimit,
+        },
       })),
     },
   });
@@ -52,8 +57,6 @@ export function RulesSettingsForm({
     name: "rules",
   });
 
-  const minLengthIndex = rules.findIndex((r) => r.type === RuleType.MIN_LENGTH);
-
   const hasEnabledRules = rules.some((r) => r.enabled);
 
   const onSubmit = (data: RulesFormValues) => {
@@ -61,7 +64,13 @@ export function RulesSettingsForm({
       const updates = data.rules.map((r) => ({
         id: r.id,
         enabled: r.enabled,
-        config: r.config,
+        config: {
+          ...r.config,
+          forbidden: r.config?.forbiddenString
+            ?.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        },
       }));
 
       await saveRulesAction(userId, updates);
@@ -75,38 +84,44 @@ export function RulesSettingsForm({
       className="flex flex-col gap-6 w-full"
     >
       <ul className="flex flex-col gap-4">
-        {minLengthIndex !== -1 && (
-          <li className="flex flex-col gap-2">
-            <Controller
-              control={control}
-              name={`rules.${minLengthIndex}.enabled`}
-              render={({ field }) => (
-                <div className="flex items-center gap-3">
+        {rules.map((rule, index) => (
+          <li key={rule.id} className="flex flex-col gap-1">
+            <div className="flex items-center gap-3">
+              <Controller
+                control={control}
+                name={`rules.${index}.enabled`}
+                render={({ field }) => (
                   <Checkbox
-                    id={RuleType.MIN_LENGTH}
+                    id={rule.type}
                     checked={field.value}
                     onCheckedChange={(checked) =>
                       field.onChange(checked === true)
                     }
                   />
-                  <Label
-                    htmlFor={RuleType.MIN_LENGTH}
-                    className={cn(
-                      "cursor-pointer transition-opacity",
-                      !field.value && "opacity-50",
-                    )}
-                  >
-                    Minimum length
-                  </Label>
-                </div>
-              )}
-            />
+                )}
+              />
 
-            {rules[minLengthIndex]?.enabled && (
-              <div className="pl-7 flex flex-col gap-1">
+              <Label
+                htmlFor={rule.type}
+                className={cn(
+                  "cursor-pointer transition-opacity",
+                  !rule.enabled && "opacity-50",
+                )}
+              >
+                {rule.label}
+              </Label>
+            </div>
+
+            <div
+              className={cn(
+                "pl-7 flex flex-col gap-1",
+                !rule.enabled && "opacity-50",
+              )}
+            >
+              {rule.type === RuleType.MIN_LENGTH && rule.enabled && (
                 <Controller
                   control={control}
-                  name={`rules.${minLengthIndex}.config.minLength`}
+                  name={`rules.${index}.config.minLength`}
                   render={({ field }) => (
                     <NumberInput
                       value={field.value ?? MIN_LENGTH_BOUNDS.min}
@@ -116,50 +131,46 @@ export function RulesSettingsForm({
                     />
                   )}
                 />
+              )}
 
-                <InputError
-                  error={
-                    errors.rules?.[minLengthIndex]?.config?.minLength?.message
-                  }
-                />
-              </div>
-            )}
-          </li>
-        )}
-
-        {rules.map((rule, index) => {
-          if (rule.type === RuleType.MIN_LENGTH) return null;
-
-          return (
-            <li key={rule.id} className="flex flex-col gap-1">
-              <div className="flex items-center gap-3">
+              {rule.type === RuleType.FORBIDDEN && rule.enabled && (
                 <Controller
                   control={control}
-                  name={`rules.${index}.enabled`}
+                  name={`rules.${index}.config.forbiddenString`}
                   render={({ field }) => (
-                    <Checkbox
-                      id={rule.type}
-                      checked={field.value}
-                      onCheckedChange={(checked) =>
-                        field.onChange(checked === true)
-                      }
+                    <Input
+                      placeholder="Enter forbidden words (comma separated)"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
                     />
                   )}
                 />
-
-                <Label
-                  htmlFor={rule.type}
-                  className={cn(
-                    "cursor-pointer transition-opacity",
-                    !rule.enabled && "opacity-50",
+              )}
+              {rule.type === RuleType.REPEAT_LIMIT && rule.enabled && (
+                <Controller
+                  control={control}
+                  name={`rules.${index}.config.repeatLimit`}
+                  render={({ field }) => (
+                    <NumberInput
+                      value={field.value ?? 2}
+                      min={1}
+                      max={10}
+                      onChange={field.onChange}
+                    />
                   )}
-                >
-                  {rule.label}
-                </Label>
-              </div>
-            </li>
-          );
-        })}
+                />
+              )}
+
+              <InputError
+                error={
+                  errors.rules?.[index]?.config?.minLength?.message ??
+                  errors.rules?.[index]?.config?.forbidden?.message ??
+                  errors.rules?.[index]?.config?.repeatLimit?.message
+                }
+              />
+            </div>
+          </li>
+        ))}
       </ul>
 
       <InputError error={errors.rules?.message} className="justify-center" />

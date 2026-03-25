@@ -4,4 +4,7 @@ export enum RuleType {
   LOWERCASE = "lowercase",
   DIGIT = "digit",
   SPECIAL_CHARACTER = "special-character",
+  NO_SPACES = "no-spaces",
+  FORBIDDEN = "forbidden",
+  REPEAT_LIMIT = "repeat-limit",
 }
